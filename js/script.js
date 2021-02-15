@@ -69,20 +69,80 @@ $(()=>{
     lägg in en eventhandler på knappen som kör en ajaxförfrågan till api:et och skriver ut svaret från result.value i ett annat html-element
     */
 
-    $.widget('chas.testwidget', {
+    // $.widget('chas.testwidget', {
+    //     options: {
+    //         someValue: 0
+    //     },
+    //     _create:function() {
+    //         const someValue = `testing options: ${this.options.someValue}`
+    //         this.element
+    //         .addClass('testwidget')
+    //         .find('p')
+    //         .text(someValue);
+    //     }
+    // });
+    // console.log($.chas);
+    
+    // $('#chuckdiv').testwidget();
+    
+   $.widget('chas.progressbar', {
         options: {
-            someValue: 0
+            value: 0
         },
-        _create:function() {
-            const someValue = `testing options: ${this.options.someValue}`
+
+        _create: function() {
+            this.element.addClass('progressbar');
+            this._update();
+        },
+
+        _setOption: function(key, value) {
+            this.options[key] = value;
+            this._update();
+        },
+
+        _update: function() {
+            const progress = `${this.options.value} %`;
+            this.element.text(progress);
+            if (this.options.value === 100) {
+                this._trigger("complete", null, {value:100});
+            }
+        },
+
+        value: function(value) {
+            if (value === undefined) {
+                return this.options.value;
+            } else {
+                this.options.value = this._constrain(value);
+                this._update();
+            }
+        },
+
+        _constrain: function(value) {
+            if (value > 100) {
+                value = 100;
+            }
+            if (value < 0) {
+                value = 0;
+            }
+            return value;
+        },
+
+        _destroy: function() {
             this.element
-            .addClass('testwidget')
-            .find('p')
-            .text(someValue);
+            .removeClass('progressbar')
+            .text('');
         }
-    });
-    console.log($.chas);
-    
-    $('#chuckdiv').testwidget();
-    
+   }); 
+
+   const bar = $('#chuckdiv p').progressbar({value:20});
+
+   bar.progressbar('value', 50);
+
+   bar.progressbar({
+    complete: function(event, data) {
+        alert("callback");
+    }
+   });
+
+   bar.progressbar('value', 100);
 });
